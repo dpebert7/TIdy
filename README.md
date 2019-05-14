@@ -1,2 +1,2 @@
 # TIdy
-Easily format TM1 TurboIntegrator processes
+Easy formatter TM1 TurboIntegrator processes
