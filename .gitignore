@@ -1,4 +1,4 @@
 .git
 .idea
-.ipynb_checkpoints
+.ipynb_checkpoints/*
 .pytest_cache
