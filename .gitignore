@@ -1,0 +1,4 @@
+.git
+.idea
+.ipynb_checkpoints
+.pytest_cache
