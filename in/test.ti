@@ -28,7 +28,7 @@ cubesetlogchanges(cCube, 1);
 
 ### Some ifs
 cDim='TestDim' ;
-If (DimensionExists(cDim)<>0);
+If (Dimensionexists(cDim)<>0);
 #Comment before if statement
 If (1=0);
 #Comment after if statement.
@@ -36,6 +36,6 @@ dimensiondestroy(cDim);
 
 # Comment before else. Maybe should be dedented, especially since preceded by blank line?
 else;
-ASCIIOUTPUT('tmp.txt', 'Hello world!');
+    Asciioutput('tmp.txt', 'Hello world!');
 endif;
 endif;

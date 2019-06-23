@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 import os
-
 from TI import TI
 from defaults import DEFAULT_INDIR
 

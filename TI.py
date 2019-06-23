@@ -7,11 +7,9 @@ def is_comment(line):
     Determine if a line is a comment
     """
     strip = line.strip()
-    if len(strip) > 0:
-        if strip[0] == '#':
+    if len(strip) > 0 and strip[0] == '#':
             return True
-    else:
-        return False
+    return False
 
 
 def is_blank(line):
@@ -20,8 +18,7 @@ def is_blank(line):
     """
     if line.strip() == '':
         return True
-    else:
-        return False
+    return False
 
 def is_hash(line):
     """
@@ -42,12 +39,11 @@ class TI(object):
     A python class for tidying up TM1 TurboIntegrator Processes
     """
 
-    def __init__(self, intext, tab = DEFAULT_TAB, outdir = DEFAULT_OUTDIR, outfile = 'out.ti', part = 'Unknown'):
+    def __init__(self, text, tab = DEFAULT_TAB, outdir = DEFAULT_OUTDIR, outfile = 'out.ti', part = 'Unknown'):
         """
         Initialize TI object in python
         """
-        self.intext = intext
-        self.outtext = self.intext
+        self.text = text
         self.tab = tab
         self.outdir = outdir
         self.outfile = outfile
@@ -68,7 +64,7 @@ class TI(object):
         """
         from defaults import KEYWORDS
         out = []
-        for line in self.outtext:
+        for line in self.text:
             if is_comment(line) is True:
                 out.append(line)
             else:
@@ -78,7 +74,7 @@ class TI(object):
                         if line.strip().upper().find(keyword) == 0:
                             line = line[:idx] + keyword + line[idx + len(keyword):]
                 out.append(line)
-        self.outtext = out
+        self.text = out
 
     def capitalize_functions(self):
         """
@@ -86,20 +82,24 @@ class TI(object):
         """
         from defaults import FUNCTION_NAMES
         out = []
-        for line in self.outtext:
+        for line in self.text:
             if is_comment(line) is True:
                 out.append(line)
             else:
                 for keyword in FUNCTION_NAMES:
                     idx = line.upper().find(keyword.upper())
-                    # Keyword must be preceded by a space if not at start of line:
-                    if idx != -1 and line[idx-1] == ' ':
+                    # Keyword must be preceded by a space or '(' if not at start of line:
+                    if idx != -1 and (line[idx-1] == ' ' or line[idx-1] == '('):
                         line = line[:idx] + keyword + line[idx + len(keyword):]
                     # Else keyword must be followed closely by '('
-                    if idx == 1 and '(' in line[idx+len(keyword) : idx+len(keyword)+3]:
+                    elif idx == 0 and '(' in line[idx+len(keyword):idx+len(keyword)+3]:
                         line = keyword + line[idx + len(keyword):]
+                    elif idx != -1:
+                        pass
+                        # uncomment for testing
+                        #print(line, keyword, idx)
                 out.append(line)
-        self.outtext = out
+        self.text = out
 
     def indent(self):
         """
@@ -108,17 +108,17 @@ class TI(object):
         level = 0
         out = []
         tab = self.tab
-        for line in self.outtext:
+        for line in self.text:
             line = line.lstrip()
             if line.startswith('END') or line.startswith('ENDIF') or line.startswith('ELSE'):
                 level -= 1
             out.append(tab * level + line)
             if line.startswith('WHILE') or line.startswith('IF') or line.startswith('ELSEIF') or line.startswith('ELSE'):
                 level += 1
-        self.outtext = out
+        self.text = out
 
     def remove_trailing_whitespace(self):
-        self.outtext = [x.rstrip() for x in self.outtext]
+        self.text = [x.rstrip() for x in self.text]
 
 
     def space_operators(self):
@@ -128,7 +128,7 @@ class TI(object):
         """
         from defaults import OPERATORS
         out = []
-        for line in self.outtext:
+        for line in self.text:
             if is_comment(line) is True:
                 out.append(line)
             else:
@@ -147,13 +147,13 @@ class TI(object):
                         if line[idx - 1] != ' ':
                             line = line[:idx] + ' ' + operator + line[idx + len(operator):]
                 out.append(line)
-        self.outtext = out
+        self.text = out
 
     def enforce_max_blank_lines(self):
         from defaults import MAX_CONSECUTIVE_BLANK_LINES
         out = []
         consecutive_blanks = 0
-        for line in self.outtext:
+        for line in self.text:
             if is_blank(line):
                 consecutive_blanks += 1
                 if consecutive_blanks <= MAX_CONSECUTIVE_BLANK_LINES:
@@ -161,15 +161,15 @@ class TI(object):
             else:
                 consecutive_blanks = 0
                 out.append(line)
-        self.outtext = out
+        self.text = out
 
 
     def remove_hash_lines(self):
         out = []
-        for line in self.outtext:
+        for line in self.text:
             if is_hash(line) is False:
                 out.append(line)
-        self.outtext = out
+        self.text = out
 
 
     def tidy(self):
@@ -187,12 +187,12 @@ class TI(object):
         Write out_text to outfile
         """
         with open(self.outdir + '/' + self.outfile, 'w') as f:
-            for line in self.outtext:
+            for line in self.text:
                 f.write("%s\n" % line)
 
     def print_output(self):
         """
         Print output
         """
-        for line in self.outtext:
+        for line in self.text:
             print(line)

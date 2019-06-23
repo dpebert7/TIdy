@@ -13,7 +13,7 @@ cCube = 'GL';
 ### Extra spaces here ->
 
 ### Turn off logging
-cubesetlogchanges(cCube, 1);
+CubeSetLogChanges(cCube, 1);
 
 ### Some ifs
 cDim = 'TestDim' ;
@@ -21,10 +21,10 @@ IF (DimensionExists(cDim) <> 0);
 	#Comment before if statement
 	IF (1 = 0);
 		#Comment after if statement.
-		dimensiondestroy(cDim);
+		DimensionDestroy(cDim);
 		
 		# Comment before else. Maybe should be dedented, especially since preceded by blank line?
 	ELSE;
-		ASCIIOUTPUT('tmp.txt', 'Hello world!');
+		ASCIIOutput('tmp.txt', 'Hello world!');
 	ENDIF;
 ENDIF;
