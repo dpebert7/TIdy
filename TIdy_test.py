@@ -47,4 +47,3 @@ def test_trailing_whitespace():
 
 def test_capitalization_context():
     comment_TI.tidy()
-    assert comment_TI.text != ['### ConsTANts']
