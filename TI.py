@@ -123,8 +123,7 @@ class TI(object):
 
     def space_operators(self):
         """
-        Disabled: Need to make sure "<>" doesn't return "< >" nor "@=" returns "@ =", etc.
-        :return:
+        Add spacing around operators. E.g. n=n+1; --> n = n + 1;
         """
         from defaults import OPERATORS
         out = []
@@ -177,14 +176,35 @@ class TI(object):
                 out.append(line)
         self.text = out
 
+    def space_forward_slash(self):
+        # Forward slashes cause issues in python, especially 12\n_months which creates a newline.
+        out = []
+        for line in self.text:
+            if "\\" in line:
+                line = line.replace("\\", " \\ ").replace("  ", " ")
+                out.append(line)
+            else:
+                out.append(line)
+        self.text = out
+
+    def remove_space_before_semicolon(self):
+        out = []
+        for line in self.text:
+            while " ;" in line:
+                line = line.replace(" ;", ";")
+            out.append(line)
+        self.text = out
+
 
     def tidy(self):
+        self.space_forward_slash()
         self.capitalize_keywords()
         self.capitalize_functions()
         self.remove_trailing_whitespace()
         self.space_operators()
         self.indent()
         self.enforce_max_blank_lines()
+        self.remove_space_before_semicolon()
         self.remove_hash_lines()
 
 

@@ -1,16 +1,10 @@
 # Defalut
 
-HEADING_INDICATOR = "###"
-CHUNK_HEADING = """
-#####################
-### TITLE
-#####################
-"""
 MAX_CONSECUTIVE_BLANK_LINES = 3
 DEFAULT_INDIR = 'in'
 DEFAULT_OUTDIR = 'out'
 DEFAULT_TAB = '\t'
-OPERATORS = ['=', '<', '>', '<=', '>=', '<>', '@=', '@<>']
+OPERATORS = ['+', '-', '*', '=', '/', '<', '>', '<=', '>=', '<>', '@=', '@<>']
 
 # List of TI keywords
 KEYWORDS = ['BREAK', 'IF', 'ELSE', 'ELSEIF', 'WHILE', 'ENDIF', 'END']

@@ -1,5 +1,5 @@
-# TIdy
-Easy python formatter TM1 TurboIntegrator processes
+## TIdy
+*An easy python formatter TM1 TurboIntegrator processes*
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/dpebert7/TIdy/master?filepath=Main.ipynb)
 
@@ -14,10 +14,34 @@ Easy python formatter TM1 TurboIntegrator processes
 - Automatically copy results to clipboard using pyperclip (Available only when running locally)
 
 
+### Example
+```python
+from TI import TI
+ti = TI(text = "")
+ti.set_tab("\t")
+
+string = """
+if (1=0) ;
+ASCIIOUTPUT('zz.txt', 'Hello world!');
+endif;
+"""
+
+ti.text = string.split('\n')
+ti.tidy()
+ti.print_output()
+```
+
+Output:
+```
+IF (1 = 0);
+	ASCIIOutput('zz.txt', 'Hello world!');
+ENDIF;
+```
+
 ### Known Issues
 
-* [ ] \n interpreted as new line. E.g. "nResult = nNumerator\nDivisor;" will split into separate lines and not do division.
+* [ ] \n interpreted as new line, especially in Jupyter Notebook. E.g. `nResult = nNumerator\nDivisor;` will split into separate lines.
 
 * [ ] Capitalization of non-keywords still isn't sorted. E.g. nSingle incorrectly changes to nSINgle
 
-* [ ] Need to include and document options for, e.g., removing extra whitespace or shortening comment headers
+* [ ] Need to include and document options for removing extra whitespace, shortening comment headers, etc.

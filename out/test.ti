@@ -1,24 +1,17 @@
 #LASTMODIFIED D Ebert 20 August 2019
 #GENERALCOMMENT This is a test TI script for TIdying up
 
-### Constants
+### Spacing & Capitalization
 cCube = 'GL';
-
-# Too much space below
-
-
-
-### Extra spaces here ->
-
-### Turn off logging
 CubeSetLogChanges(cCube, 1);
 
-### Some ifs
-cDim = 'TestDim' ;
+### Indentation
+cDim = 'TestDim';
 IF (DimensionExists(cDim) <> 0);
 	IF (1 = 0);
 		DimensionDestroy(cDim);
 	ELSE;
 		ASCIIOutput('tmp.txt', 'Hello world!');
+		CellPutN(10 \ nValue, 'Fishpaste', 'Actual', '2019.01')
 	ENDIF;
 ENDIF;
