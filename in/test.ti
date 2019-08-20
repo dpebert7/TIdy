@@ -1,20 +1,10 @@
-#LASTMODIFIED D Ebert 6 Feb 2019
+#LASTMODIFIED D Ebert 20 August 2019
 #GENERALCOMMENT This is a test TI script for TIdying up
 
 ### Constants
 cCube='GL';
 
-############################################
-############################################
-#### An obnoxious heading
-############################################
-############################################
-
 # Too much space below
-
-
-
-
 
 
 
@@ -29,12 +19,8 @@ cubesetlogchanges(cCube, 1);
 ### Some ifs
 cDim='TestDim' ;
 If (Dimensionexists(cDim)<>0);
-#Comment before if statement
 If (1=0);
-#Comment after if statement.
 dimensiondestroy(cDim);
-
-# Comment before else. Maybe should be dedented, especially since preceded by blank line?
 else;
     Asciioutput('tmp.txt', 'Hello world!');
 endif;

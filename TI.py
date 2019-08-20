@@ -165,9 +165,15 @@ class TI(object):
 
 
     def remove_hash_lines(self):
+        # Only remove hash lines if there are more than one in a row.
         out = []
         for line in self.text:
-            if is_hash(line) is False:
+            if is_hash(line) is True:
+                consec +=1
+                if consec < 2:
+                    out.append(line)
+            else:
+                consec = 0
                 out.append(line)
         self.text = out
 

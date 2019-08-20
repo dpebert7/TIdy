@@ -1,10 +1,8 @@
-#LASTMODIFIED D Ebert 6 Feb 2019
+#LASTMODIFIED D Ebert 20 August 2019
 #GENERALCOMMENT This is a test TI script for TIdying up
 
 ### Constants
 cCube = 'GL';
-
-#### An obnoxious heading
 
 # Too much space below
 
@@ -18,12 +16,8 @@ CubeSetLogChanges(cCube, 1);
 ### Some ifs
 cDim = 'TestDim' ;
 IF (DimensionExists(cDim) <> 0);
-	#Comment before if statement
 	IF (1 = 0);
-		#Comment after if statement.
 		DimensionDestroy(cDim);
-		
-		# Comment before else. Maybe should be dedented, especially since preceded by blank line?
 	ELSE;
 		ASCIIOutput('tmp.txt', 'Hello world!');
 	ENDIF;
