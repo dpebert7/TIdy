@@ -38,10 +38,17 @@ IF (1 = 0);
 ENDIF;
 ```
 
-### Known Issues
-
-* [ ] \n interpreted as new line, especially in Jupyter Notebook. E.g. `nResult = nNumerator\nDivisor;` will split into separate lines.
-
-* [ ] Capitalization of non-keywords still isn't sorted. E.g. nSingle incorrectly changes to nSINgle
+### Known Issues/Improvement Plans
 
 * [ ] Need to include and document options for removing extra whitespace, shortening comment headers, etc.
+
+* [ ] Further testing required when processing raw .rux files.
+
+* [ ] Add formatting for rules files
+
+
+### Fixed Issues
+
+* [x] \n interpreted as new line, especially when passing string rather than file path. E.g. `nResult = nNumerator\nDivisor;` will split into separate lines.
+
+* [x] Capitalization of non-keywords still isn't sorted when alternate keyword matches start of word. E.g. `stringtonumber (pEndYear)` incorrectly changes to `STRingToNumber (pEndYear)`
