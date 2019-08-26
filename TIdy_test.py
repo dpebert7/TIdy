@@ -8,11 +8,16 @@ pytest:
 from TI import TI
 from defaults import DEFAULT_OUTDIR, DEFAULT_TAB
 
-blank_TI = TI([''])
-if_TI = TI(['if(1=0)'])
-indent_TI = TI(['IF(1=0);', "ASCIIOutput('zz.txt', 'Hello world!');", 'ENDIF;'])
-trailing_whitespace_TI = TI(['#Comment          '])
-comment_TI = TI(['### Constants'])
+blank_TI = TI(text=' ')
+if_TI = TI(text='if(1=0);')
+indent_TI = TI(text="""
+IF(1=0);
+ASCIIOutput('zz.txt', 'Hello world!');
+ENDIF;
+""")
+trailing_whitespace_TI = TI(text='#Comment          ')
+comment_TI = TI(text='### Constants')
+
 
 
 def test_default_tab():
@@ -35,11 +40,15 @@ def test_set_outdir():
 
 def test_keyword_capitalization():
     if_TI.capitalize_keywords()
-    assert if_TI.text == ['IF(1=0)']
+    assert if_TI.text == ['IF(1=0);']
+
+def test_operator_spacing():
+    if_TI.tidy()
+    assert if_TI.text == ['IF(1 = 0);']
 
 def test_indentation():
     indent_TI.indent()
-    assert indent_TI.text == ['IF(1=0);', DEFAULT_TAB + "ASCIIOutput('zz.txt', 'Hello world!');", 'ENDIF;']
+    assert indent_TI.text == ['', 'IF(1=0);', DEFAULT_TAB + "ASCIIOutput('zz.txt', 'Hello world!');", 'ENDIF;', '']
 
 def test_trailing_whitespace():
     trailing_whitespace_TI.remove_trailing_whitespace()
@@ -47,3 +56,14 @@ def test_trailing_whitespace():
 
 def test_capitalization_context():
     comment_TI.tidy()
+    assert comment_TI.text == ['### Constants']
+
+def test_space_before_semicolon():
+    sbc = TI(text="IF(1 = 0)  ;")
+    sbc.remove_space_before_semicolon()
+    assert sbc.text == ["IF(1 = 0);"]
+
+def test_newline():
+    newline = TI(text="nNumerator\nDenominator;")
+    newline.tidy()
+    assert newline.text == ["nNumerator \ nDenominator;"]

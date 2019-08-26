@@ -1,6 +1,3 @@
-#LASTMODIFIED D Ebert 20 August 2019
-#GENERALCOMMENT This is a test TI script for TIdying up
-
 ### Spacing & Capitalization
 cCube='GL';
 cubesetlogchanges(cCube, 1) ;
@@ -12,6 +9,7 @@ If (1=0);
 dimensiondestroy(cDim);
 else;
  Asciioutput('tmp.txt', 'Hello world!');
- CellPutN(10\ nValue, 'Fishpaste', 'Actual', '2019.01')
+ nNoOfYears = StringToNumber (pEndYear) - StringToNumber (pStartYear) ;
+ CellPutN(10\nNoOfYears, 'Fishpaste', 'Actual', '2019.01')
 endif;
 endif;

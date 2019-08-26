@@ -38,16 +38,34 @@ class TI(object):
     """
     A python class for tidying up TM1 TurboIntegrator Processes
     """
+    text: object
 
-    def __init__(self, text, tab = DEFAULT_TAB, outdir = DEFAULT_OUTDIR, outfile = 'out.ti', part = 'Unknown'):
+    def __init__(self, text=None, infile="", tab=DEFAULT_TAB, outdir=DEFAULT_OUTDIR, outfile="out.ti"):
         """
         Initialize TI object in python
         """
+        self.infile = infile
         self.text = text
         self.tab = tab
         self.outdir = outdir
         self.outfile = outfile
-        self.part = part
+        self.isprofile = False
+
+        if self.infile != "":
+            with open(self.infile, 'r') as f:
+                text_list = f.read().splitlines()
+            self.text = text_list
+
+        elif self.text != "":
+            ### Note: In cases like nNumerator\nDenominator, a raw string must be passed here.
+            self.text = self.text.replace('\\', '\\ ')
+            self.text = self.text.split('\n')
+
+        if self.text is None:
+            print("I think there's an error here. Make sure infile or text are populated...")
+
+        if self.infile != "":
+            self.outfile = self.infile.split('/')[-1]
 
     def set_tab(self, tab_str):
         self.tab = tab_str
@@ -90,7 +108,11 @@ class TI(object):
                     idx = line.upper().find(keyword.upper())
                     # Keyword must be preceded by a space or '(' if not at start of line:
                     if idx != -1 and (line[idx-1] == ' ' or line[idx-1] == '('):
-                        line = line[:idx] + keyword + line[idx + len(keyword):]
+                        # Keyword must also be followed by a space or '('
+                        following_char = line[idx + len(keyword)]
+                        if following_char == ' ' or following_char == '(':
+                            line = line[:idx] + keyword + line[idx + len(keyword):]
+                            #print(line, keyword, idx)
                     # Else keyword must be followed closely by '('
                     elif idx == 0 and '(' in line[idx+len(keyword):idx+len(keyword)+3]:
                         line = keyword + line[idx + len(keyword):]
@@ -119,7 +141,6 @@ class TI(object):
 
     def remove_trailing_whitespace(self):
         self.text = [x.rstrip() for x in self.text]
-
 
     def space_operators(self):
         """
@@ -162,7 +183,6 @@ class TI(object):
                 out.append(line)
         self.text = out
 
-
     def remove_hash_lines(self):
         # Only remove hash lines if there are more than one in a row.
         out = []
@@ -195,8 +215,42 @@ class TI(object):
             out.append(line)
         self.text = out
 
+    def update_pmde_lengths(self):
+        """
+        When working with a .pro file, the Prolog, metadata, data, and epilog tabs are preceded by <Code>,<Length of tab>.
+        .pro files risk being invalid if this line is not updated.
+        This process should not make any changes to TI code that is not in .pro format
+        """
+        pmde_lengths = {'intro':0, 'prolog':0, 'metadata':0, 'data':0, 'epilog':0,'outro':0}
+        stage = 'intro'
+        for i in range(len(self.text)):
+            if self.text[i][:4] == '572,':
+                stage = 'prolog'
+            elif self.text[i][:4] == '573,':
+                stage = 'metadata'
+            elif self.text[i][:4] == '574,':
+                stage = 'data'
+            elif self.text[i][:4] == '575,':
+                stage = 'epilog'
+            elif self.text[i][:4] == '576,':
+                stage = 'outro'
+            pmde_lengths[stage] += 1
+
+        for i in range(len(self.text)):
+            if self.text[i][:4] == '572,':
+                self.text[i] = '572,' + str(pmde_lengths['prolog'] - 1)
+            elif self.text[i][:4] == '573,':
+                self.text[i] = '573,' + str(pmde_lengths['metadata'] - 1)
+            elif self.text[i][:4] == '574,':
+                self.text[i] = '574,' + str(pmde_lengths['data'] - 1)
+            elif self.text[i][:4] == '575,':
+                self.text[i] = '575,' + str(pmde_lengths['epilog'] - 1)
+            pmde_lengths[stage] += 1
 
     def tidy(self):
+        """
+        Apply all TIdy processes
+        """
         self.space_forward_slash()
         self.capitalize_keywords()
         self.capitalize_functions()
@@ -206,11 +260,12 @@ class TI(object):
         self.enforce_max_blank_lines()
         self.remove_space_before_semicolon()
         self.remove_hash_lines()
+        self.update_pmde_lengths()
 
 
-    def generate_output(self):
+    def write_output(self):
         """
-        Write out_text to outfile
+        Write text to outfile
         """
         with open(self.outdir + '/' + self.outfile, 'w') as f:
             for line in self.text:
@@ -218,7 +273,7 @@ class TI(object):
 
     def print_output(self):
         """
-        Print output
+        Print text
         """
         for line in self.text:
             print(line)
