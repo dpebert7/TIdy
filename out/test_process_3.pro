@@ -4,7 +4,7 @@
 586,
 585,
 564,
-565,"wu6dfmz<@\r:[fkZv1wC^iWa<9c?<EJ<kjjba4`dtiDHlRl\n8Kh>7^xD_fenOv[;vMSx9CAeq:9]h5gYWb`ma_2u83jxYmyHDkjkE0^OWCgbNpM:Zp2?qUgOx57uLI8t3W03?h8\uZ_jQOI;yJN_pVb8FfnSTHHHoRUDkb8iqw@Zfj1ywf5Psd0dokm5NKSLc2:`ZxH"
+565,"wu6dfmz<@ \ r:[fkZv1wC^iWa < 9c? < EJ < kjjba4`dtiDHlRl \ n8Kh > 7^xD_fenOv[;vMSx9CAeq:9]h5gYWb`ma_2u83jxYmyHDkjkE0^OWCgbNpM:Zp2?qUgOx57uLI8t3W03?h8 \ uZ_jQOI;yJN_pVb8FfnSTHHHoRUDkb8iqw@Zfj1ywf5Psd0dokm5NKSLc2:`ZxH"
 559,1
 928,0
 593,
@@ -71,9 +71,9 @@ sErr = sErr | sGlobalErr;
 IF (sErr @<> '');
 	ItemReject(sErr);
 ENDIF;
-576,CubeAction=1511
-DataAction=1503
-CubeLogChanges=0
+576,CubeAction = 1511
+DataAction = 1503
+CubeLogChanges = 0
 
 930,0
 638,1

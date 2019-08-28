@@ -51,14 +51,15 @@ ENDIF;
 
 ### Fixed Issues
 
-* [x] \n interpreted as new line, especially when passing string rather than file path. E.g. `nResult = nNumerator\nDivisor;` will split into separate lines.
-
-* [x] Capitalization of non-keywords still isn't sorted when alternate keyword matches start of word. E.g. `stringtonumber (pEndYear)` incorrectly changes to `STRingToNumber (pEndYear)`
-
-* [x] Single line if statments, E.g. `` should handle indentation correctly
-
 * [x] Operators within quotes should not be spaced, E.g. `path = '\\main-directory\test.txt';`
 
 * [x] Allow passing of raw `.pro` files. Note: This is working, but is generally dangerous and should only be with proper testing.
+
+* [x] `\n` must not be interpreted as new line, especially when passing string rather than file path. E.g. `nResult = nNumerator\nDivisor;` should not split into two lines.
+
+* [x] Correct capitalization at start of word. E.g. `stringtonumber (pEndYear)` should not become `STRingToNumber (pEndYear)`
+
+* [x] Single line if statments, E.g. `IF(nCondition = 1, ProcessBreak, 0);` should handle indentation correctly
+
 
 

@@ -1,0 +1,17 @@
+### Spacing & Capitalization
+cCube = 'GL';
+CubeSetLogChanges(cCube, 1);
+path = '\\main-directory\test.txt';
+nResult = 10 \ nDenominator - 
+CellGetN('CubeName', 'V1', 'V2', 'V3');
+
+### Indentation
+nIdx = 10;
+WHILE(nIdx > 0);
+	IF (CubeExists(cCube) = 1);
+		CubeDestroy(cCube);
+	ELSE;
+		CellPutN(10 \ nNoOfYears, 'Fishpaste', 'Actual', '2019.01')
+	ENDIF;
+	nIdx = nIdx - 1;
+END;
