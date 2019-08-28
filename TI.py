@@ -1,4 +1,5 @@
-#@title TI Class
+# @title TI Class
+import re
 from defaults import DEFAULT_OUTDIR, DEFAULT_TAB
 
 
@@ -8,8 +9,37 @@ def is_comment(line):
     """
     strip = line.strip()
     if len(strip) > 0 and strip[0] == '#':
-            return True
+        return True
     return False
+
+
+def find_parentheses(s):
+    """ Find and return the location of the matching parentheses pairs in s.
+
+    Given a string, s, return a dictionary of start: end pairs giving the
+    indexes of the matching parentheses in s. Suitable exceptions are
+    raised if s contains unbalanced parentheses.
+
+    """
+
+    # The indexes of the open parentheses are stored in a stack, implemented
+    # as a list
+
+    stack = []
+    parentheses_locs = {}
+    for i, c in enumerate(s):
+        if c == '(':
+            stack.append(i)
+        elif c == ')':
+            try:
+                parentheses_locs[stack.pop()] = i
+            except IndexError:
+                raise IndexError('Too many close parentheses at index {}'
+                                 .format(i))
+    if stack:
+        raise IndexError('No matching close parenthesis to open parenthesis '
+                         'at index {}'.format(stack.pop()))
+    return parentheses_locs
 
 
 def is_blank(line):
@@ -19,6 +49,7 @@ def is_blank(line):
     if line.strip() == '':
         return True
     return False
+
 
 def is_hash(line):
     """
@@ -32,6 +63,79 @@ def is_hash(line):
         if re.sub('#', '', line).strip() == '':
             return True
     return False
+
+
+def is_one_line_if_statement(line):
+    """
+        Some if statements happen on one line. E.g. IF(nCondition = 1, ProcessBreak, 0);
+        This should be split into 3 lines to prevent indentation issues
+        """
+    if is_comment(line):
+        return False
+    else:
+        # Assume line must start with IF, and entire IF() statement is in ONE line
+        if line.lstrip().upper()[:2] == "IF":
+            # Get only text inside IF parentheses
+            paren_string = line[line.find("(") + 1:line.rfind(")")]
+            # Remove inner parenthesis before counting commas
+            while '(' in paren_string:
+                paren_string = paren_string[:paren_string.find("(")] + paren_string[paren_string.rfind(")") + 1:]
+            if paren_string.count(",") == 2:
+                return True
+    return False
+
+
+def line_is_intro_or_conclusion(lst, line_idx):
+    """
+    Determine if a line comes before the prolog or after the epilog.
+    """
+    for i in range(len(lst)):
+        start_idx = None
+        end_idx = None
+        if lst[i].startswith('572,'):
+            start_idx = i
+        elif lst[i].startswith('575,'):
+            end_idx = i + int(lst[i][4:])
+    if start_idx is None:
+        return False
+    elif line_idx < start_idx:
+        return True
+    elif end_idx is None:
+        return False
+    elif line_idx > end_idx:
+        return True
+    else:
+        return False
+
+
+def char_is_in_string(lst, line_idx, char_idx):
+    """
+    Determine if a given character (referenced by index) is part of a string. E
+        E.g. logx = '\\s-grp-dbsvr6\sqlpackagedata$\TM1\Working\test.txt'; should return True for all \,
+        but nResult = nNumerator \ nDenominator; should return False for \
+    Since strings can go over multiple lines, look back to previous semicolon (if exists?) for start of strings
+    """
+    # Loop backward to find first semicolon
+    idx = line_idx
+    start_idx = 0
+    while idx > 0:
+        if ";" in lst[idx]:
+            # Assume ";" is the last character of previous line
+            start_idx = idx
+            idx = 0
+        elif idx == 1:
+            start_idx = 0
+        idx = idx - 1
+
+    # Create single string from start_idx to line_idx, then append current line
+    longstr = "".join(lst[start_idx:line_idx])
+    longstr += (lst[line_idx][:char_idx + 1])
+
+    # Count the number of occurrences of '
+    count = longstr.count("'")
+    if count % 2 == 0:
+        return False
+    return True
 
 
 class TI(object):
@@ -58,7 +162,7 @@ class TI(object):
 
         elif self.text != "":
             ### Note: In cases like nNumerator\nDenominator, a raw string must be passed here.
-            self.text = self.text.replace('\\', '\\ ')
+            # self.text = self.text.replace('\\', '\\ ')
             self.text = self.text.split('\n')
 
         if self.text is None:
@@ -107,21 +211,68 @@ class TI(object):
                 for keyword in FUNCTION_NAMES:
                     idx = line.upper().find(keyword.upper())
                     # Keyword must be preceded by a space or '(' if not at start of line:
-                    if idx != -1 and (line[idx-1] == ' ' or line[idx-1] == '('):
+                    if idx != -1 and (line[idx - 1] == ' ' or line[idx - 1] == '('):
                         # Keyword must also be followed by a space or '('
                         following_char = line[idx + len(keyword)]
                         if following_char == ' ' or following_char == '(':
                             line = line[:idx] + keyword + line[idx + len(keyword):]
-                            #print(line, keyword, idx)
+                            # print(line, keyword, idx)
                     # Else keyword must be followed closely by '('
-                    elif idx == 0 and '(' in line[idx+len(keyword):idx+len(keyword)+3]:
+                    elif idx == 0 and '(' in line[idx + len(keyword):idx + len(keyword) + 3]:
                         line = keyword + line[idx + len(keyword):]
                     elif idx != -1:
                         pass
                         # uncomment for testing
-                        #print(line, keyword, idx)
+                        # print(line, keyword, idx)
                 out.append(line)
         self.text = out
+
+    #
+    # def separate_one_line_ifs(self):
+    #     """
+    #     Some if statements happen on one line. E.g. IF(nCondition = 1, ProcessBreak, 0);
+    #     This should be split into 3 lines to prevent indentation issues
+    #     """
+    #     out = []
+    #     line_idx = -1
+    #     for line in self.text:
+    #         line_idx += 1
+    #         if is_comment(line) or line_is_intro_or_conclusion(self.text, line_idx):
+    #             out.append(line)
+    #         else:
+    #             # Assume line must start with IF, and entire IF() statement is in ONE line
+    #             if line.lstrip().upper()[:2] == "IF":
+    #                 paren_string = line[line.find("(")+1:line.rfind(")")]
+    #                 # Remove inner parenthesis before counting commas
+    #                 #print('Hello', paren_string)
+    #                 while '(' in paren_string:
+    #                     paren_string = paren_string[:paren_string.find("(")] + paren_string[paren_string.rfind(")")+1:]
+    #                     #print('Hello', paren_string)
+    #                 if paren_string.count(",") == 2:
+    #                     print(line, paren_string.split(','))
+    #                     splt = paren_string.split(',')
+    #
+    #                     # Append If statement
+    #                     out.append("IF(" + splt[0] + ");")
+    #
+    #                     # Append condition if true
+    #                     if str(splt[1]).split() == '0':
+    #                         out.append(" ")
+    #                     else:
+    #                         out.append(splt[1] + ";")
+    #
+    #                     #Append Else and Endif
+    #                     if str(splt[2]).strip() == '0':
+    #                         out.append('ENDIF;')
+    #                     else:
+    #                         out.append('ELSE;')
+    #                         out.append(splt[2] + ';')
+    #                         out.append('ENDIF;')
+    #                 else:
+    #                     out.append(line)
+    #             else:
+    #                 out.append(line)
+    #     self.text = out
 
     def indent(self):
         """
@@ -135,8 +286,12 @@ class TI(object):
             if line.startswith('END') or line.startswith('ENDIF') or line.startswith('ELSE'):
                 level -= 1
             out.append(tab * level + line)
-            if line.startswith('WHILE') or line.startswith('IF') or line.startswith('ELSEIF') or line.startswith('ELSE'):
+            if line.startswith('WHILE') or line.startswith('IF') or line.startswith('ELSEIF') or line.startswith(
+                    'ELSE'):
                 level += 1
+            # Rare exception for one line if statements
+            if is_one_line_if_statement(line):
+                level -= 1
         self.text = out
 
     def remove_trailing_whitespace(self):
@@ -148,24 +303,39 @@ class TI(object):
         """
         from defaults import OPERATORS
         out = []
+        previous_lines = []
+        line_idx = -1
         for line in self.text:
-            if is_comment(line) is True:
+            line_idx += 1
+            previous_lines.append(line)
+            if is_comment(line) or line_is_intro_or_conclusion(self.text, line_idx):
                 out.append(line)
             else:
-                idx_list = [line.find(operator) for operator in OPERATORS]
-                if sum(idx_list) != len(OPERATORS)*-1:
-                    # Determine the correct operator
-                    operator = ""
-                    for i in range(len(OPERATORS)):
-                        if idx_list[i] >= 0 and len(OPERATORS[i]) > len(operator):
-                            operator = OPERATORS[i]
-                    # Add spacing
-                    idx = line.find(operator)
-                    if idx != -1:
-                        if line[idx + len(operator)] != ' ':
-                            line = line[:idx] + operator + ' ' + line[idx + len(operator):]
-                        if line[idx - 1] != ' ':
-                            line = line[:idx] + ' ' + operator + line[idx + len(operator):]
+                for op in OPERATORS:
+                    # Need to escape + and * when using regex
+                    if op == '+' or op == '*':
+                        reop = '\\' + op
+                    else:
+                        reop = op
+                    indices = [m.start() for m in re.finditer(reop, line)][::-1]
+                    for idx in indices:
+                        # Make sure operator doesn't occur in a string
+                        if char_is_in_string(previous_lines, len(previous_lines) - 1, idx) is False:
+                            # If previous or next character is another operator or '@', then skip this operator for this position
+                            if idx == 0 or line[idx - 1] not in OPERATORS + ['@']:
+                                if idx + len(op) == len(line) or line[idx + len(op)] not in OPERATORS + ['@']:
+                                    # Apply spacing before operator
+                                    if idx == 0:
+                                        line = ' ' + op + line[idx + len(op):]
+                                    elif line[idx - 1] != ' ':
+                                        line = line[:idx] + ' ' + op + line[idx + len(op):]
+                                        idx += 1
+                                    # Apply spacing after operator
+                                    if idx + len(op) < len(line):
+                                        if line[idx + len(op)] != ' ':
+                                            line = line[:idx] + op + ' ' + line[idx + len(op):]
+                                    else:
+                                        line = line[:idx] + op + ' '
                 out.append(line)
         self.text = out
 
@@ -188,7 +358,7 @@ class TI(object):
         out = []
         for line in self.text:
             if is_hash(line) is True:
-                consec +=1
+                consec += 1
                 if consec < 2:
                     out.append(line)
             else:
@@ -196,15 +366,24 @@ class TI(object):
                 out.append(line)
         self.text = out
 
-    def space_forward_slash(self):
+    def space_back_slash(self):
         # Forward slashes cause issues in python, especially 12\n_months which creates a newline.
         out = []
+        previous_lines = []
+        line_idx = -1
         for line in self.text:
-            if "\\" in line:
-                line = line.replace("\\", " \\ ").replace("  ", " ")
-                out.append(line)
-            else:
-                out.append(line)
+            line_idx += 1
+            previous_lines.append(line)
+            indices = [m.start() for m in re.finditer(r'\\', line)][::-1]
+            for idx in indices:
+                if line_is_intro_or_conclusion(previous_lines, len(previous_lines) - 1) is False:
+                    if char_is_in_string(previous_lines, len(previous_lines) - 1, idx) is False:
+                        if len(line) > idx:
+                            line = line[:idx] + " \\ " + line[idx + 1:]
+                        else:
+                            line = line[:idx] + " \\ " + line[idx + 1:]
+                        line = line.replace("  ", " ")
+            out.append(line)
         self.text = out
 
     def remove_space_before_semicolon(self):
@@ -221,7 +400,7 @@ class TI(object):
         .pro files risk being invalid if this line is not updated.
         This process should not make any changes to TI code that is not in .pro format
         """
-        pmde_lengths = {'intro':0, 'prolog':0, 'metadata':0, 'data':0, 'epilog':0,'outro':0}
+        pmde_lengths = {'intro': 0, 'prolog': 0, 'metadata': 0, 'data': 0, 'epilog': 0, 'outro': 0}
         stage = 'intro'
         for i in range(len(self.text)):
             if self.text[i][:4] == '572,':
@@ -251,7 +430,7 @@ class TI(object):
         """
         Apply all TIdy processes
         """
-        self.space_forward_slash()
+        self.space_back_slash()
         self.capitalize_keywords()
         self.capitalize_functions()
         self.remove_trailing_whitespace()
@@ -261,7 +440,6 @@ class TI(object):
         self.remove_space_before_semicolon()
         self.remove_hash_lines()
         self.update_pmde_lengths()
-
 
     def write_output(self):
         """

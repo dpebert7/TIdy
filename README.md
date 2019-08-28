@@ -38,13 +38,15 @@ IF (1 = 0);
 ENDIF;
 ```
 
-### Known Issues/Improvement Plans
+### Known Issues/Improvements
 
-* [ ] Need to include and document options for removing extra whitespace, shortening comment headers, etc.
+* [ ] Add hanging indentation for long `ExecuteProcess` statements.
 
-* [ ] Further testing required when processing raw .rux files.
+* [ ] Include and document options for removing extra whitespace, shortening comment headers, etc.
 
-* [ ] Add formatting for rules files
+* [ ] Include formatting for rule files
+
+* [ ] Expanded testing
 
 
 ### Fixed Issues
@@ -52,3 +54,11 @@ ENDIF;
 * [x] \n interpreted as new line, especially when passing string rather than file path. E.g. `nResult = nNumerator\nDivisor;` will split into separate lines.
 
 * [x] Capitalization of non-keywords still isn't sorted when alternate keyword matches start of word. E.g. `stringtonumber (pEndYear)` incorrectly changes to `STRingToNumber (pEndYear)`
+
+* [x] Single line if statments, E.g. `` should handle indentation correctly
+
+* [x] Operators within quotes should not be spaced, E.g. `path = '\\main-directory\test.txt';`
+
+* [x] Allow passing of raw `.pro` files. Note: This is working, but is generally dangerous and should only be with proper testing.
+
+

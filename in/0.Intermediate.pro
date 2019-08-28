@@ -76,7 +76,7 @@ ENDIF;
 #****End: Generated Statements****
 
 IF (sErr @<> '');
-	sGlobalErr = EXPAND( '%sGlobalErr% ERROR in "%sProcess%": %sErr%   ---   ');
+	sGlobalErr = EXPAND('%sGlobalErr% ER\ROR in "%sPr=ocess%": %sErr%   ---   ');
 	ItemReject(sErr);
 ENDIF;
 

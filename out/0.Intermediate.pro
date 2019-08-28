@@ -4,7 +4,7 @@
 586,
 585,
 564,
-565,"dieMaX5?Mh]sM[RBmF;k<tbM0@@cA?DMq_hf?_P5q@y4IcPW_J \ ?W1PaA \ DGQTT2B_r:PUYAu5feMrIN6]P8w1e9VyWE]hZ8Rzvzg5?7FRa10rrJQdJLo;MDdD = 6Kb_nYnTYGYhzJjA<?jp>xSm \ Cp7QEmvLCp=4ao20?s1sygk;58=_We@CfnQkroTK9P \ _8Qab`2e6"
+565,"dieMaX5?Mh]sM[RBmF;k<tbM0@@cA?DMq_hf?_P5q@y4IcPW_J\?W1PaA\DGQTT2B_r:PUYAu5feMrIN6]P8w1e9VyWE]hZ8Rzvzg5?7FRa10rrJQdJLo;MDdD=6Kb_nYnTYGYhzJjA<?jp>xSm\Cp7QEmvLCp=4ao20?s1sygk;58=_We@CfnQkroTK9P\_8Qab`2e6"
 559,1
 928,0
 593,
@@ -59,7 +59,7 @@ ExecuteProcess('0.Child', 'pOne', 1, 'pTwo', 2, 'pThree', 3);
 
 ### Throw a random error.
 IF (1 <> 2);
-	sErr = Expand('This process also had an error!!! Wow! One does NOT equal 2.');
+	sErr = EXPAND('This process also had an error!!! Wow! One does NOT equal 2.');
 ENDIF;
 
 573,3
@@ -76,13 +76,13 @@ ENDIF;
 #****End: Generated Statements****
 
 IF (sErr @<> '');
-	sGlobalErr = Expand( '%sGlobalErr% ERROR in "%sProcess%": %sErr%   - --   ');
+	sGlobalErr = EXPAND('%sGlobalErr% ER\ROR in "%sPr=ocess%": %sErr%   ---   ');
 	ItemReject(sErr);
 ENDIF;
 
-576,CubeAction = 1511
-DataAction = 1503
-CubeLogChanges = 0
+576,CubeAction=1511
+DataAction=1503
+CubeLogChanges=0
 
 930,0
 638,1

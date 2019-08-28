@@ -1,15 +1,16 @@
 ### Spacing & Capitalization
-cCube = 'GL';
-CubeSetLogChanges(cCube, 1);
+cCube='GL';
+cubesetlogchanges(cCube, 1) ;
 
 ### Indentation
-cDim = 'TestDim';
-IF (DimensionExists(cDim) <> 0);
-	IF (1 = 0);
-		DimensionDestroy(cDim);
-	ELSE;
-		ASCIIOutput('tmp.txt', 'Hello world!');
-		nNoOfYears = StringToNumber (pEndYear) - StringToNumber (pStartYear);
-		CellPutN(10 \ nNoOfYears, 'Fishpaste', 'Actual', '2019.01')
-	ENDIF;
-ENDIF;
+cDim='TestDim';
+If (Dimensionexists(cDim)<>0);
+If (1=0);
+dimensiondestroy(cDim);
+else;
+ Asciioutput('tmp.txt', 'Hello world!');
+ nNoOfYears=StringToNumber(pEndYear)-StringToNumber(pStartYear) ;
+ logx='\\s-grp-dbsvr6\sqlpackagedata$\TM1\Working\test.txt'
+ CellPutN(10\nNoOfYears, 'Fishpaste', 'Actual', '2019.01')
+endif;
+endif;

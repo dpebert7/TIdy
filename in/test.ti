@@ -9,7 +9,8 @@ If (1=0);
 dimensiondestroy(cDim);
 else;
  Asciioutput('tmp.txt', 'Hello world!');
- nNoOfYears = StringToNumber (pEndYear) - StringToNumber (pStartYear) ;
+ nNoOfYears=StringToNumber(pEndYear)-StringToNumber(pStartYear) ;
+ logx='\\s-grp-dbsvr6\sqlpackagedata$\TM1\Working\test.txt'
  CellPutN(10\nNoOfYears, 'Fishpaste', 'Actual', '2019.01')
 endif;
 endif;
