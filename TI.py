@@ -1,6 +1,7 @@
 # @title TI Class
 import re
-from defaults import DEFAULT_OUTDIR, DEFAULT_TAB
+import datetime
+from defaults import DEFAULT_OUTDIR, DEFAULT_TAB, OPERATORS, IMPLICIT_VARIABLE_NAMES, FUNCTION_NAMES, KEYWORDS
 
 
 def is_comment(line):
@@ -41,6 +42,18 @@ def find_parentheses(s):
                          'at index {}'.format(stack.pop()))
     return parentheses_locs
 
+def make_TI_statement_list(lst):
+    """
+    Convert TI to list without comments such that each line ends with a semicolon. This will also disregard PMDE elements
+    """
+    longstring = ""
+    for i in range(len(lst)):
+        line = lst[i]
+        if line_is_intro_or_conclusion(lst, i) is False:
+            if is_comment(line) is False:
+                longstring = longstring + line.strip()
+    return(longstring.split(";"))
+
 
 def is_blank(line):
     """
@@ -78,7 +91,7 @@ def is_one_line_if_statement(line):
             # Get only text inside IF parentheses
             paren_string = line[line.find("(") + 1:line.rfind(")")]
             # Remove inner parenthesis before counting commas
-            while '(' in paren_string:
+            while '(' in paren_string and ')' in paren_string:
                 paren_string = paren_string[:paren_string.find("(")] + paren_string[paren_string.rfind(")") + 1:]
             if paren_string.count(",") == 2:
                 return True
@@ -89,13 +102,14 @@ def line_is_intro_or_conclusion(lst, line_idx):
     """
     Determine if a line comes before the prolog or after the epilog.
     """
+    start_idx = None
+    end_idx = None
     for i in range(len(lst)):
-        start_idx = None
-        end_idx = None
         if lst[i].startswith('572,'):
             start_idx = i
         elif lst[i].startswith('575,'):
             end_idx = i + int(lst[i][4:])
+
     if start_idx is None:
         return False
     elif line_idx < start_idx:
@@ -153,7 +167,6 @@ class TI(object):
         self.tab = tab
         self.outdir = outdir
         self.outfile = outfile
-        self.isprofile = False
 
         if self.infile != "":
             with open(self.infile, 'r') as f:
@@ -171,6 +184,8 @@ class TI(object):
         if self.infile != "":
             self.outfile = self.infile.split('/')[-1]
 
+        self.isprofile = self.set_isprofile()
+
     def set_tab(self, tab_str):
         self.tab = tab_str
 
@@ -179,6 +194,29 @@ class TI(object):
 
     def set_outfile(self, outfile_str):
         self.outfile = outfile_str
+
+    def set_isprofile(self):
+        """
+        Determine if the TI object is a raw .pro file or just TI code. Set self.isprofile
+        """
+        # Check if text has all four headers for P, M, D & E
+        count_parts = 0
+        for i in range(len(self.text)):
+            txt = self.text[i]
+            if txt.startswith('572,') or txt.startswith('573,') or txt.startswith('574,') or txt.startswith('575,'):
+                count_parts+=1
+        if count_parts == 4:
+            return True
+        return False
+
+    def return_after_semicolon(self):
+        """
+        Enforce newline after semicolon
+        """
+        out = []
+        for line in self.text:
+            if line.count(";") > 1:
+                lines = [i + ";" for i in line.split(";")]
 
     def capitalize_keywords(self):
         """
@@ -216,63 +254,13 @@ class TI(object):
                         following_char = line[idx + len(keyword)]
                         if following_char == ' ' or following_char == '(':
                             line = line[:idx] + keyword + line[idx + len(keyword):]
-                            # print(line, keyword, idx)
                     # Else keyword must be followed closely by '('
                     elif idx == 0 and '(' in line[idx + len(keyword):idx + len(keyword) + 3]:
                         line = keyword + line[idx + len(keyword):]
                     elif idx != -1:
                         pass
-                        # uncomment for testing
-                        # print(line, keyword, idx)
                 out.append(line)
         self.text = out
-
-    #
-    # def separate_one_line_ifs(self):
-    #     """
-    #     Some if statements happen on one line. E.g. IF(nCondition = 1, ProcessBreak, 0);
-    #     This should be split into 3 lines to prevent indentation issues
-    #     """
-    #     out = []
-    #     line_idx = -1
-    #     for line in self.text:
-    #         line_idx += 1
-    #         if is_comment(line) or line_is_intro_or_conclusion(self.text, line_idx):
-    #             out.append(line)
-    #         else:
-    #             # Assume line must start with IF, and entire IF() statement is in ONE line
-    #             if line.lstrip().upper()[:2] == "IF":
-    #                 paren_string = line[line.find("(")+1:line.rfind(")")]
-    #                 # Remove inner parenthesis before counting commas
-    #                 #print('Hello', paren_string)
-    #                 while '(' in paren_string:
-    #                     paren_string = paren_string[:paren_string.find("(")] + paren_string[paren_string.rfind(")")+1:]
-    #                     #print('Hello', paren_string)
-    #                 if paren_string.count(",") == 2:
-    #                     print(line, paren_string.split(','))
-    #                     splt = paren_string.split(',')
-    #
-    #                     # Append If statement
-    #                     out.append("IF(" + splt[0] + ");")
-    #
-    #                     # Append condition if true
-    #                     if str(splt[1]).split() == '0':
-    #                         out.append(" ")
-    #                     else:
-    #                         out.append(splt[1] + ";")
-    #
-    #                     #Append Else and Endif
-    #                     if str(splt[2]).strip() == '0':
-    #                         out.append('ENDIF;')
-    #                     else:
-    #                         out.append('ELSE;')
-    #                         out.append(splt[2] + ';')
-    #                         out.append('ENDIF;')
-    #                 else:
-    #                     out.append(line)
-    #             else:
-    #                 out.append(line)
-    #     self.text = out
 
     def indent(self):
         """
@@ -290,8 +278,8 @@ class TI(object):
                     'ELSE'):
                 level += 1
             # Rare exception for one line if statements
-            if is_one_line_if_statement(line):
-                level -= 1
+            #if is_one_line_if_statement(line):
+            #    level -= 1
         self.text = out
 
     def remove_trailing_whitespace(self):
@@ -426,11 +414,127 @@ class TI(object):
                 self.text[i] = '575,' + str(pmde_lengths['epilog'] - 1)
             pmde_lengths[stage] += 1
 
+    def count_variables(self):
+        """
+        return a dictionary of variables and the number of times they occur in a process
+        """
+        variables = {}
+        reserved = OPERATORS + FUNCTION_NAMES + KEYWORDS + IMPLICIT_VARIABLE_NAMES
+        statements = make_TI_statement_list(self.text)
+        for line in statements:
+            if line.count("=") == 1:
+                # Create strings for LHS and RHS
+                sides = [x.strip() for x in line.split('=')]
+                # Add variable to LHS
+                if sides[0].startswith("IF") is False:
+                    if sides[0] not in variables.keys():
+                        variables[sides[0]] = {'LHS': 1, 'RHS': -1, 'DEF': [sides[1]]}
+                    else:
+                        variables[sides[0]]['LHS'] += 1
+                        variables[sides[0]]['RHS'] -= 1
+                        variables[sides[0]]['DEF'].append(sides[1])
+
+        # Now go through variables again and count up all uses of string, adding to RHS count
+        for var in variables.keys():
+            for line in statements:
+                split = re.split(r'(\s|,\)\()', line.strip())
+                if var in split:
+                    variables[var]['RHS'] += split.count(var)
+        return(variables)
+
+    def replace_variable_with_string(self, variable, str_replacement):
+        """
+        Replace variable (e.g. s_VersionDim) with a suitable string replacement (e.g. 'Version')
+        """
+        out = []
+        # Remove all instances where variable appears on LHS
+        for line in self.text:
+            if not is_comment(line) and line.upper().count(variable.upper()) > 0:
+                sides = [x.strip() for x in line.split('=')]
+                lhs_split = re.split(r'(\s|,\)\()', sides[0].upper())
+                if variable.upper() in lhs_split:
+                    pass
+                else:
+                    out.append(line)
+            else:
+                out.append(line)
+
+        out2 = []
+        # Now loop again and replace variable with str_replacement everywhere
+        for line in out:
+            if not is_comment(line):
+                #print(line, variable, str_replacement)
+                out2.append(re.sub(variable, str_replacement, line, flags=re.IGNORECASE))
+            else:
+                out2.append(line)
+        self.text = out2
+
+
+    def refactor(self):
+        """
+        If a simple string (E.g. sPeriodDim = 'Period') variable is only used once or twice, then hard code it.
+        """
+        vardict = self.count_variables()
+        #print(vardict)
+        for var in vardict.keys():
+            if vardict[var]['LHS'] == 1:
+                vardef = vardict[var]['DEF'][0]
+                # Check that the variable's definition is simple. I.e. starts and ends with single quote
+                if vardef[0] == '\'' and vardef[-1:] == '\'':
+                    self.replace_variable_with_string(var, vardef)
+        return
+
+    def add_LASTUPDATED(self):
+        out = []
+        """
+        Add #LASTUPDATED TIdy <date> to top of prolog or wherever other LASTUPDATEDS are. 
+        """
+
+        # Identify the prolog
+        out = {'preprolog':[], 'prolog':[], 'postprolog':[]}
+        stage = 'preprolog'
+        for line in self.text:
+            if line[:4] == '572,':
+                stage = 'prolog'
+            elif line[:4] == '573,':
+                stage = 'postprolog'
+            out[stage].append(line)
+
+        # Put LASTUPDATED in prolog
+        # (1) Check if #LASTUPDATED already exists in prolog
+        newline = "#LASTUPDATED by TIdy " + datetime.date.today().strftime("%d %B %Y")
+        newprolog = []
+        keepgoing = True
+        for line in out['prolog']:
+            if keepgoing and (line.startswith("#LastUpdated") or line.startswith("#LASTUPDATED") or line.startswith("#LASTCHANGE")):
+                newprolog.append(newline)
+                newprolog.append(line)
+                keepgoing = False
+            else:
+                newprolog.append(line)
+        out['prolog'] = newprolog
+
+        # (2) Else put at top of prolog just before any other text
+        newprolog = []
+        for line in out['prolog']:
+            if keepgoing and not line.startswith("572,") and not line.startswith("#****") and not is_blank(line):
+                newprolog.append(newline)
+                newprolog.append(line)
+                keepgoing = False
+            else:
+                newprolog.append(line)
+        out['prolog'] = newprolog
+
+        # Update text
+        self.text = out['preprolog'] + out['prolog'] + out['postprolog']
+
+
     def tidy(self):
         """
         Apply all TIdy processes
         """
         self.space_back_slash()
+        self.return_after_semicolon()
         self.capitalize_keywords()
         self.capitalize_functions()
         self.remove_trailing_whitespace()
@@ -439,7 +543,11 @@ class TI(object):
         self.enforce_max_blank_lines()
         self.remove_space_before_semicolon()
         self.remove_hash_lines()
-        self.update_pmde_lengths()
+        if self.isprofile:
+            self.refactor()
+            self.add_LASTUPDATED()
+            self.update_pmde_lengths()
+
 
     def write_output(self):
         """

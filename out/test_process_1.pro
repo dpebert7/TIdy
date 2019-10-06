@@ -4,7 +4,7 @@
 586,
 585,
 564,
-565,"wc2^shiZjv = I8L0u \ aH_6D3agJmpJ?lt_wlvH][w[o0hvIgFar02jOd5J = I;HlRx;:bzYTK12pzec5 \ sfH = RbaBK \ y7 = i:Rd > 6D0nyDhAKZzsRK \ Jt:mpxD;3y?Dk6pOk > YSjJB = ``XgDKP6_Mb150HrYH0dnvvilXHd_gbUo@Bj`eavvR9q]ZzN = HUHCw7_epSc:EWp"
+565,"wc2^shiZjv=I8L0u \ aH_6D3agJmpJ?lt_wlvH][w[o0hvIgFar02jOd5J=I;HlRx;:bzYTK12pzec5 \ sfH=RbaBK \ y7=i:Rd>6D0nyDhAKZzsRK \ Jt:mpxD;3y?Dk6pOk>YSjJB=``XgDKP6_Mb150HrYH0dnvvilXHd_gbUo@Bj`eavvR9q]ZzN=HUHCw7_epSc:EWp"
 559,1
 928,0
 593,
@@ -48,11 +48,12 @@ pThree,""
 581,0
 582,0
 603,0
-572,20
+572,21
 
 #****Begin: Generated Statements***
 #****End: Generated Statements****
 
+#LASTUPDATED by TIdy 06 October 2019
 sErr = '';
 sProcess = GetProcessName();
 
@@ -88,9 +89,9 @@ IF (sErr @<> '');
 	ItemReject(sErr);
 ENDIF;
 
-576,CubeAction = 1511
-DataAction = 1503
-CubeLogChanges = 0
+576,CubeAction=1511
+DataAction=1503
+CubeLogChanges=0
 
 930,0
 638,1

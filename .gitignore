@@ -3,3 +3,5 @@ __pycache__/*
 .idea
 .ipynb_checkpoints/*
 .pytest_cache
+test_infiles
+disabled
