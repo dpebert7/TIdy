@@ -44,6 +44,12 @@ FUNCTION_NAMES = [
     'MONTH', 'MOS', 'NCELL', 'NOW', 'NPV', 'PAYMT', 'PV', 'RAND', 'RIGHT', 'ROUND', 'ROUNDP', 'SCAN', 'SCELL',
     'SIGN', 'SIN', 'SLEEP', 'SQRT', 'STDDV', 'STR', 'SUBSIZ', 'SUBST', 'SUM', 'TABDIM', 'TAN', 'TIME', 'TIMST',
     'TIMVL', 'TODAY', 'TRIM', 'UNDEF', 'UPPER', 'VAR', 'WHOAMI', 'WIDTH', 'YEAR', 'YRS'
+] + [
+    'DimensionElementComponentAddDirect', 'DimensionElementComponentDelete', 'DimensionElementComponentDeleteDirect',
+    'DimensionElementDelete', 'DimensionElementDeleteDirect', 'DimensionElementInsert', 'DimensionElementInsertDirect',
+    'DimensionElementPrincipalName', 'DimensionExists', 'DimensionSortOrder', 'DimensionUpdateDirect',
+    'DimensionTopElementInsert', 'DimensionTopElementInsertDirect'
+
 ]
 
 

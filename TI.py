@@ -211,19 +211,19 @@ class TI(object):
                 for keyword in FUNCTION_NAMES:
                     idx = line.upper().find(keyword.upper())
                     # Keyword must be preceded by a space or '(' if not at start of line:
-                    if idx != -1 and (line[idx - 1] == ' ' or line[idx - 1] == '('):
-                        # Keyword must also be followed by a space or '('
-                        following_char = line[idx + len(keyword)]
-                        if following_char == ' ' or following_char == '(':
+                    if idx != -1 and (line[idx - 1] == ' ' or line[idx - 1] == '(' or idx == 0):
+                        # Keyword must also be followed by a space or '(' or ';'
+                        following_char = str(line + ' ')[idx + len(keyword)]
+                        if following_char == ' ' or following_char == '(' or following_char == ';':
                             line = line[:idx] + keyword + line[idx + len(keyword):]
                             # print(line, keyword, idx)
                     # Else keyword must be followed closely by '('
                     elif idx == 0 and '(' in line[idx + len(keyword):idx + len(keyword) + 3]:
                         line = keyword + line[idx + len(keyword):]
                     elif idx != -1:
-                        pass
                         # uncomment for testing
-                        # print(line, keyword, idx)
+                        print(line, keyword, idx)
+                        pass
                 out.append(line)
         self.text = out
 
