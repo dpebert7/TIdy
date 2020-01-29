@@ -222,7 +222,7 @@ class TI(object):
                         line = keyword + line[idx + len(keyword):]
                     elif idx != -1:
                         # uncomment for testing
-                        print(line, keyword, idx)
+                        # print(line, keyword, idx)
                         pass
                 out.append(line)
         self.text = out
